@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
+import { StoreLayout } from "@/components/store/StoreLayout";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -38,40 +39,46 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+  console.error("[Root Error Boundary]:", error);
   const router = useRouter();
+
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Esta página não carregou
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Algo deu errado. Tente novamente ou volte para a página inicial.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center bg-gradient-gold px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground"
-          >
-            Tentar novamente
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center border border-border px-5 py-2 text-xs uppercase tracking-[0.2em] text-foreground"
-          >
-            Ir para a loja
-          </a>
-        </div>
-      </div>
-    </div>
+    <AuthProvider>
+      <CartProvider>
+        <StoreLayout>
+          <div className="container-dk py-24 text-center">
+            <h1 className="font-display text-4xl font-semibold text-foreground">
+              Ocorreu um problema ao carregar este conteúdo
+            </h1>
+            <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+              {error?.message || "Algo deu errado na sincronização dos dados."}
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  router.invalidate();
+                  reset();
+                }}
+                className="inline-flex items-center justify-center bg-gradient-gold px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground shadow-md transition-transform hover:scale-105"
+              >
+                Tentar novamente
+              </button>
+              <a
+                href="/"
+                className="inline-flex items-center justify-center border border-border px-6 py-3 text-xs uppercase tracking-[0.2em] text-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                Recarregar loja
+              </a>
+            </div>
+          </div>
+        </StoreLayout>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 
