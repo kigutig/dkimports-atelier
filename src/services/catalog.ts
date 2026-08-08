@@ -25,53 +25,93 @@ export async function fetchProducts(options?: {
   limit?: number | undefined;
   activeOnly?: boolean | undefined;
 }) {
-  let query = supabase.from("products").select(PRODUCT_SELECT);
-  if (options?.activeOnly !== false) query = query.eq("active", true);
-  if (options?.featured) query = query.eq("featured", true);
-  if (options?.onSale) query = query.eq("on_sale", true);
-  if (options?.limit) query = query.limit(options.limit);
-  const { data, error } = await query.order("created_at", { ascending: false });
-  if (error) throw error;
-  let list = (data ?? []) as Product[];
-  if (options?.categorySlug) {
-    list = list.filter((p) => p.categories?.slug === options.categorySlug);
+  try {
+    let query = supabase.from("products").select(PRODUCT_SELECT);
+    if (options?.activeOnly !== false) query = query.eq("active", true);
+    if (options?.featured) query = query.eq("featured", true);
+    if (options?.onSale) query = query.eq("on_sale", true);
+    if (options?.limit) query = query.limit(options.limit);
+    const { data, error } = await query.order("created_at", { ascending: false });
+    if (error) {
+      console.warn("[Catalog] fetchProducts error:", error.message);
+      return [];
+    }
+    let list = (data ?? []) as Product[];
+    if (options?.categorySlug) {
+      list = list.filter((p) => p.categories?.slug === options.categorySlug);
+    }
+    return list;
+  } catch (e) {
+    console.warn("[Catalog] fetchProducts exception:", e);
+    return [];
   }
-  return list;
 }
 
 export async function fetchProductBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_SELECT)
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) throw error;
-  return data as Product | null;
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select(PRODUCT_SELECT)
+      .eq("slug", slug)
+      .maybeSingle();
+    if (error) {
+      console.warn("[Catalog] fetchProductBySlug error:", error.message);
+      return null;
+    }
+    return data as Product | null;
+  } catch (e) {
+    console.warn("[Catalog] fetchProductBySlug exception:", e);
+    return null;
+  }
 }
 
 export async function fetchCategories() {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .order("sort_order", { ascending: true });
-  if (error) throw error;
-  return data as Category[];
+  try {
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .order("sort_order", { ascending: true });
+    if (error) {
+      console.warn("[Catalog] fetchCategories error:", error.message);
+      return [];
+    }
+    return data as Category[];
+  } catch (e) {
+    console.warn("[Catalog] fetchCategories exception:", e);
+    return [];
+  }
 }
 
 export async function fetchBanner() {
-  const { data, error } = await supabase
-    .from("banners")
-    .select("*")
-    .eq("active", true)
-    .order("sort_order", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (error) throw error;
-  return data as Banner | null;
+  try {
+    const { data, error } = await supabase
+      .from("banners")
+      .select("*")
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      console.warn("[Catalog] fetchBanner error:", error.message);
+      return null;
+    }
+    return data as Banner | null;
+  } catch (e) {
+    console.warn("[Catalog] fetchBanner exception:", e);
+    return null;
+  }
 }
 
 export async function fetchSettings() {
-  const { data, error } = await supabase.from("settings").select("*").eq("id", 1).maybeSingle();
-  if (error) throw error;
-  return data as Settings | null;
+  try {
+    const { data, error } = await supabase.from("settings").select("*").eq("id", 1).maybeSingle();
+    if (error) {
+      console.warn("[Catalog] fetchSettings error:", error.message);
+      return null;
+    }
+    return data as Settings | null;
+  } catch (e) {
+    console.warn("[Catalog] fetchSettings exception:", e);
+    return null;
+  }
 }
