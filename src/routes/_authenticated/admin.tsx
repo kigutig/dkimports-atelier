@@ -33,14 +33,14 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 const NAV = [
   { to: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
-  { to: "/admin/produtos", label: "Produtos", icon: Package },
-  { to: "/admin/estoque", label: "Estoque", icon: Boxes },
-  { to: "/admin/pedidos", label: "Pedidos", icon: ShoppingCart },
-  { to: "/admin/clientes", label: "Clientes", icon: Users },
-  { to: "/admin/cupons", label: "Cupons", icon: Tag },
-  { to: "/admin/categorias", label: "Categorias", icon: LayoutGrid },
-  { to: "/admin/banners", label: "Banners e Home", icon: ImageIcon },
-  { to: "/admin/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/admin/produtos", label: "Produtos", icon: Package, exact: false },
+  { to: "/admin/estoque", label: "Estoque", icon: Boxes, exact: false },
+  { to: "/admin/pedidos", label: "Pedidos", icon: ShoppingCart, exact: false },
+  { to: "/admin/clientes", label: "Clientes", icon: Users, exact: false },
+  { to: "/admin/cupons", label: "Cupons", icon: Tag, exact: false },
+  { to: "/admin/categorias", label: "Categorias", icon: LayoutGrid, exact: false },
+  { to: "/admin/banners", label: "Banners e Home", icon: ImageIcon, exact: false },
+  { to: "/admin/configuracoes", label: "Configurações", icon: Settings, exact: false },
 ] as const;
 
 function AdminLayout() {
