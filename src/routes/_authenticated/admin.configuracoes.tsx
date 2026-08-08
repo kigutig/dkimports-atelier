@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
   component: AdminSettings,
@@ -22,7 +23,6 @@ const FIELDS = [
   ["instagram", "Instagram"],
   ["facebook", "Facebook"],
   ["tiktok", "TikTok"],
-  ["logo_url", "URL do logo"],
 ] as const;
 
 const TEXTAREAS = [
@@ -93,6 +93,14 @@ function AdminSettings() {
             />
           </div>
         ))}
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Logo da loja</Label>
+          <ImageUploader
+            folder="configuracoes"
+            value={values["logo_url"] ?? ""}
+            onChange={(url) => setValues((v) => ({ ...v, logo_url: Array.isArray(url) ? url[0] ?? "" : url }))}
+          />
+        </div>
         <div className="space-y-1.5">
           <Label className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Frete fixo (R$)</Label>
           <Input

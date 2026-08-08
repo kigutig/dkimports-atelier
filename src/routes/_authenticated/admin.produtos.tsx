@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ImageUploader } from "@/components/ui/image-uploader";
 import { brl, slugify } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/produtos")({
@@ -35,7 +36,7 @@ type FormState = {
   sizes: string;
   colors: string;
   tags: string;
-  images: string;
+  images: string[];
   active: boolean;
   featured: boolean;
   on_sale: boolean;
@@ -59,7 +60,7 @@ const EMPTY: FormState = {
   sizes: "P, M, G, GG",
   colors: "Preto",
   tags: "",
-  images: "",
+  images: [],
   active: true,
   featured: false,
   on_sale: false,
@@ -130,8 +131,7 @@ function AdminProducts() {
       images: (p.product_images ?? [])
         .slice()
         .sort((a, b) => a.sort_order - b.sort_order)
-        .map((i) => i.url)
-        .join(", "),
+        .map((i) => i.url),
       active: p.active,
       featured: p.featured,
       on_sale: p.on_sale,
@@ -187,15 +187,15 @@ function AdminProducts() {
     }
 
     await supabase.from("product_images").delete().eq("product_id", productId);
-    const urls = list(form.images);
-    if (urls.length) {
+    if (form.images.length) {
+      const colorsList = list(form.colors);
       await supabase.from("product_images").insert(
-        urls.map((url, i) => ({
+        form.images.map((url, i) => ({
           product_id: productId!,
           url,
           sort_order: i,
           is_primary: i === 0,
-          alt: form.name,
+          alt: colorsList[i] ? `${form.name} - ${colorsList[i]}` : form.name,
         })),
       );
     }
@@ -410,11 +410,12 @@ function AdminProducts() {
             <Field label="Tags (vírgula)" className="sm:col-span-2">
               <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
             </Field>
-            <Field label="URLs das imagens (vírgula, a primeira é a principal)" className="sm:col-span-2">
-              <Textarea
-                rows={3}
+            <Field label="Fotos do produto (primeira = principal)" className="sm:col-span-2">
+              <ImageUploader
+                multiple
+                folder="produtos"
                 value={form.images}
-                onChange={(e) => setForm({ ...form, images: e.target.value })}
+                onChange={(urls) => setForm({ ...form, images: Array.isArray(urls) ? urls : [urls] })}
               />
             </Field>
             <div className="flex flex-wrap gap-6 sm:col-span-2">

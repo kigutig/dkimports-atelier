@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ImageUploader } from "@/components/ui/image-uploader";
 import { slugify } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/categorias")({
@@ -60,7 +61,6 @@ function AdminCategories() {
           [
             ["name", "Nome"],
             ["description", "Descrição"],
-            ["image_url", "URL da imagem"],
             ["sort_order", "Ordem"],
           ] as const
         ).map(([key, label]) => (
@@ -69,6 +69,14 @@ function AdminCategories() {
             <Input className="h-11" value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
           </div>
         ))}
+        <div className="space-y-1.5 sm:col-span-4">
+          <Label className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Imagem da categoria</Label>
+          <ImageUploader
+            folder="categorias"
+            value={form.image_url}
+            onChange={(url) => setForm({ ...form, image_url: Array.isArray(url) ? url[0] ?? "" : url })}
+          />
+        </div>
         <div className="sm:col-span-4">
           <Button variant="gold" onClick={() => void create()}>
             Adicionar categoria

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Heart, Minus, Plus, ShieldCheck, Star, Truck } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Minus, Plus, ShieldCheck, Star, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { StoreLayout } from "@/components/store/StoreLayout";
 import { ProductCard } from "@/components/store/ProductCard";
@@ -120,6 +120,24 @@ function ProductPage() {
     },
   };
 
+  const handleSelectColor = (selectedColor: string, colorIdx: number) => {
+    setColor(selectedColor);
+    if (!product?.product_images?.length) return;
+
+    const searchStr = selectedColor.toLowerCase().trim();
+    const foundIndex = product.product_images.findIndex(
+      (img) =>
+        (img.alt && img.alt.toLowerCase().includes(searchStr)) ||
+        (img.url && img.url.toLowerCase().includes(searchStr))
+    );
+
+    if (foundIndex >= 0) {
+      setActiveImage(foundIndex);
+    } else if (colorIdx < gallery.length) {
+      setActiveImage(colorIdx);
+    }
+  };
+
   return (
     <StoreLayout>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -137,12 +155,35 @@ function ProductPage() {
 
         <div className="grid gap-10 lg:grid-cols-2">
           <div className="space-y-3">
-            <div className="aspect-[3/4] overflow-hidden border border-border/70 bg-graphite">
+            <div className="group relative aspect-[3/4] overflow-hidden border border-border/70 bg-graphite">
               <img
                 src={gallery[activeImage]}
                 alt={product.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-all duration-300"
               />
+              {gallery.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setActiveImage((prev) => (prev - 1 + gallery.length) % gallery.length)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur transition-all opacity-80 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground hover:scale-110"
+                    aria-label="Imagem anterior"
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveImage((prev) => (prev + 1) % gallery.length)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur transition-all opacity-80 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground hover:scale-110"
+                    aria-label="Próxima imagem"
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+                  <span className="absolute bottom-3 right-3 rounded-full bg-background/80 px-3 py-1 text-xs font-medium text-foreground backdrop-blur border border-border/50">
+                    {activeImage + 1} / {gallery.length}
+                  </span>
+                </>
+              )}
             </div>
             {gallery.length > 1 && (
               <div className="flex gap-2 overflow-x-auto">
@@ -151,8 +192,8 @@ function ProductPage() {
                     key={img + i}
                     onClick={() => setActiveImage(i)}
                     className={cn(
-                      "h-20 w-16 shrink-0 overflow-hidden border",
-                      i === activeImage ? "border-primary" : "border-border",
+                      "h-20 w-16 shrink-0 overflow-hidden border transition-all",
+                      i === activeImage ? "border-primary ring-1 ring-primary" : "border-border opacity-70 hover:opacity-100",
                     )}
                   >
                     <img src={img} alt="" className="h-full w-full object-cover" />
@@ -218,10 +259,10 @@ function ProductPage() {
               <div>
                 <p className="eyebrow mb-2">Cor</p>
                 <div className="flex flex-wrap gap-2">
-                  {product.colors.map((c) => (
+                  {product.colors.map((c, idx) => (
                     <button
                       key={c}
-                      onClick={() => setColor(c)}
+                      onClick={() => handleSelectColor(c, idx)}
                       className={cn(
                         "border px-4 py-3 text-sm transition-colors",
                         color === c

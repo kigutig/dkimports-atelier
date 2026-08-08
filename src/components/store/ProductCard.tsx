@@ -1,19 +1,24 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, ShoppingBag, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { useFavorites } from "@/hooks/useFavorites";
 import { brl, discountPercent, effectivePrice, PLACEHOLDER_IMAGE } from "@/lib/format";
-import { productImage, type Product } from "@/services/catalog";
+import { type Product } from "@/services/catalog";
 import { cn } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
+  const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const { add } = useCart();
   const { isFavorite, toggle } = useFavorites();
   const price = effectivePrice(Number(product.price), product.sale_price);
   const off = discountPercent(Number(product.price), product.sale_price);
-  const image = productImage(product) ?? PLACEHOLDER_IMAGE;
+  
+  const images = (product.product_images ?? []).map((i) => i.url);
+  const gallery = images.length ? images : [PLACEHOLDER_IMAGE];
+  const image = gallery[currentImgIndex] ?? PLACEHOLDER_IMAGE;
   const soldOut = product.stock <= 0;
 
   return (
@@ -38,6 +43,34 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="absolute inset-x-0 bottom-0 bg-background/85 py-2 text-center text-xs tracking-[0.3em] text-muted-foreground">
             ESGOTADO
           </span>
+        )}
+        {gallery.length > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="Imagem anterior"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setCurrentImgIndex((prev) => (prev - 1 + gallery.length) % gallery.length);
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-full bg-background/80 text-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground shadow-md"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Próxima imagem"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setCurrentImgIndex((prev) => (prev + 1) % gallery.length);
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-full bg-background/80 text-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground shadow-md"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </>
         )}
       </Link>
 
