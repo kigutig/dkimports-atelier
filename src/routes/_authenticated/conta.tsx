@@ -183,7 +183,7 @@ function AccountPage() {
 
         <Tabs
           value={aba ?? "dados"}
-          onValueChange={(v) => void navigate({ search: { aba: v } })}
+          onValueChange={(v) => void navigate({ to: "/conta", search: { aba: v } })}
         >
           <TabsList className="flex w-full flex-wrap justify-start">
             <TabsTrigger value="dados">
